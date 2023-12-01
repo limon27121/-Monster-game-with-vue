@@ -1,57 +1,191 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+ <header>
+      <h1>Limon the Monster</h1>
+    </header>
+    <div id="game">
+      <section id="monster" class="container">
+        <h2>Monster Health</h2>
+        <div class="healthbar">
+          <!-- manually change the style of class -->
+          <div class="healthbar__value" :style="{width:monsterHealth+ '%'}"></div>
+        </div>
+      </section>
+      <section id="player" class="container">
+        <h2>Your Health</h2>
+        <div class="healthbar">
+          <!-- change the class style using style class -->
+          <div class="healthbar__value" :style="playerstyle"></div>
+        </div>
+      </section>
+      <section id="controls">
+
+        <!-- disabled the button when both of party health are limited -->
+
+        <button @click="attackMonster" :disabled="playerHealth<0 || monsterHealth<0">ATTACK</button>
+          
+          <!-- disabled the button when round are not disibled by 3  -->
+        <button @click="special" :disabled="currentRound%3!=0">SPECIAL ATTACK</button>
+        
+        <button>HEAL</button>
+        <button>SURRENDER</button>
+      </section>
+      <section id="log" class="container">
+        <h2>Battle Log</h2>
+        <ul></ul>
+      </section>
+    </div>
 </template>
 
 <script>
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  data(){
+    return{
+      playerHealth: 100,
+      monsterHealth: 100,
+      currentRound: 0
+    }
+  },
+  computed:{
+   playerstyle(){
+    return{width:this.playerHealth+'%'}
+   }
+  },
+  methods: {
+
+    getRandomValue(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+    },
+
+    attackMonster() {
+      this.currentRound++
+      const attackValue = this.getRandomValue(5,12)
+     
+      this.monsterHealth -= attackValue;
+      this.attackPlayer();
+    },
+     attackPlayer() {
+     const attackValue = this.getRandomValue(8,5)
+       this.playerHealth -= attackValue;
+     },
+     special(){
+      this.currentRound++
+      const attackValue=this.getRandomValue(10,25)
+      this.monsterHealth-=attackValue;
+      this.attackPlayer();
+     }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  padding: 0.5rem;
+  background-color: #880017;
+  color: white;
+  text-align: center;
+  margin-bottom: 2rem;
 }
-ul {
-  list-style-type: none;
+
+section {
+  width: 90%;
+  max-width: 40rem;
+  margin: auto;
+}
+
+.healthbar {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #575757;
+  margin: 1rem 0;
+  background: #fde5e5;
+}
+
+.healthbar__value {
+  background-color: #00a876;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  text-align: center;
+  padding: 0.5rem;
+  margin: 1rem auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  border-radius: 12px;
+}
+
+#monster h2,
+#player h2 {
+  margin: 0.25rem;
+}
+
+#controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+button {
+  font: inherit;
+  border: 1px solid #88005b;
+  background-color: #88005b;
+  color: white;
+  padding: 1rem 2rem;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  margin: 1rem;
+  width: 14rem;
+  cursor: pointer;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover,
+button:active {
+  background-color: #af0a78;
+  border-color: #af0a78;
+  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.26);
+}
+
+button:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  box-shadow: none;
+  color: #3f3f3f;
+  cursor: not-allowed;
+}
+
+#log ul {
+  list-style: none;
+  margin: 0;
   padding: 0;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+#log li {
+  margin: 0.5rem 0;
 }
-a {
-  color: #42b983;
+
+.log--player {
+  color: #7700ff;
+}
+
+.log--monster {
+  color: #da8d00;
+}
+
+.log--damage {
+  color: red;
+}
+
+.log--heal {
+  color: green;
 }
 </style>
