@@ -6,8 +6,8 @@
       <section id="monster" class="container">
         <h2>Monster Health</h2>
         <div class="healthbar">
-          <!-- manually change the style of class -->
-          <div class="healthbar__value" :style="{width:monsterHealth+ '%'}"></div>
+          <!-- change the class style using style class-->
+          <div class="healthbar__value" :style="monsterstyle"></div>
         </div>
       </section>
       <section id="player" class="container">
@@ -24,8 +24,9 @@
         <h2 v-if="winner=='player'">You Win</h2>
         <h2 v-else-if="winner='monster'">You Lost</h2>
         <h2 v-else>Draw</h2>
+        <button @click="start">Start New Game</button>
       </section>
-      <section id="controls">
+      <section id="controls" v-else>
 
         <!-- disabled the button when both of party health are limited -->
 
@@ -36,7 +37,7 @@
         
         <button @click="heal" :disabled="playerHealth>=100">HEAL</button>
 
-        <button>SURRENDER</button>
+        <button @click="surrender">SURRENDER</button>
       </section>
       <section id="log" class="container">
         <h2>Battle Log</h2>
@@ -77,7 +78,16 @@ export default {
   },
   computed:{
    playerstyle(){
+    if(this.playerHealth<=0){
+      return{width:"0%"}
+    }
     return{width:this.playerHealth+'%'}
+   },
+   monsterstyle(){
+    if(this.monsterHealth<=0){
+      return{width:"0%"}
+    }
+    return{width:this.monsterHealth+'%'}
    }
   },
   methods: {
@@ -113,6 +123,15 @@ export default {
         this.playerHealth+=healvalue
       }
       this.attackPlayer()
+     },
+     start(){
+      this.playerHealth=100,
+      this.monsterHealth=100,
+      this.currentRound=0,
+      this.winner=null
+     },
+     surrender(){
+      this.winner="monster"
      }
   }
 }
