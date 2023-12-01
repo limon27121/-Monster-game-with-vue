@@ -22,11 +22,12 @@
         <!-- disabled the button when both of party health are limited -->
 
         <button @click="attackMonster" :disabled="playerHealth<0 || monsterHealth<0">ATTACK</button>
-          
+
           <!-- disabled the button when round are not disibled by 3  -->
         <button @click="special" :disabled="currentRound%3!=0">SPECIAL ATTACK</button>
         
-        <button>HEAL</button>
+        <button @click="heal" :disabled="playerHealth>=100">HEAL</button>
+
         <button>SURRENDER</button>
       </section>
       <section id="log" class="container">
@@ -73,6 +74,17 @@ export default {
       const attackValue=this.getRandomValue(10,25)
       this.monsterHealth-=attackValue;
       this.attackPlayer();
+     },
+     heal(){
+      this.currentRound++
+      const healvalue=this.getRandomValue(8,20)
+      if(this.playerHealth+healvalue>=100){
+        this.playerHealth=100
+      }
+      else{
+        this.playerHealth+=healvalue
+      }
+      this.attackPlayer()
      }
   }
 }
