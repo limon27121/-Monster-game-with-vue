@@ -17,6 +17,14 @@
           <div class="healthbar__value" :style="playerstyle"></div>
         </div>
       </section>
+
+      <!-- show the result using condition -->
+      <section class="container" v-if="winner">
+        <h2>Game Over</h2>
+        <h2 v-if="winner=='player'">You Win</h2>
+        <h2 v-else-if="winner='monster'">You Lost</h2>
+        <h2 v-else>Draw</h2>
+      </section>
       <section id="controls">
 
         <!-- disabled the button when both of party health are limited -->
@@ -44,8 +52,28 @@ export default {
     return{
       playerHealth: 100,
       monsterHealth: 100,
-      currentRound: 0
+      currentRound: 0,
+      winner:null
     }
+  },
+  watch:{
+     playerHealth(value){
+       if(value<=0&&this.monsterHealth<=0){
+       this.winner=draw
+       }
+       else if(value<=0){
+        this.winner="monster"
+       }
+     },
+     monsterHealth(value){
+       if(value<=0&&this.playerHealth<=0){
+      this.winner="draw"
+       }
+       else if(value<=0){
+        this.winner="player"
+       }
+     }
+
   },
   computed:{
    playerstyle(){
@@ -90,7 +118,7 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+
 <style scoped>
 header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
