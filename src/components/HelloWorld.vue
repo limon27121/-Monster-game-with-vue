@@ -41,7 +41,11 @@
       </section>
       <section id="log" class="container">
         <h2>Battle Log</h2>
-        <ul></ul>
+        <ul>
+          <li v-for="k in message" :key="k">
+          {{ k.actionby }} - {{ k.actiontype }} - {{ k.actionvalue }}
+          </li>
+        </ul>
       </section>
     </div>
 </template>
@@ -54,7 +58,8 @@ export default {
       playerHealth: 100,
       monsterHealth: 100,
       currentRound: 0,
-      winner:null
+      winner:null,
+      message:[]
     }
   },
   watch:{
@@ -101,16 +106,19 @@ export default {
       const attackValue = this.getRandomValue(5,12)
      
       this.monsterHealth -= attackValue;
+      this.logmessage('player','attack',attackValue)
       this.attackPlayer();
     },
      attackPlayer() {
      const attackValue = this.getRandomValue(8,5)
        this.playerHealth -= attackValue;
+       this.logmessage('monster','attack',attackValue)
      },
      special(){
       this.currentRound++
       const attackValue=this.getRandomValue(10,25)
       this.monsterHealth-=attackValue;
+      this.logmessage('player','attack',attackValue)
       this.attackPlayer();
      },
      heal(){
@@ -122,6 +130,7 @@ export default {
       else{
         this.playerHealth+=healvalue
       }
+      this.logmessage('player','attack',healValue)
       this.attackPlayer()
      },
      start(){
@@ -129,9 +138,18 @@ export default {
       this.monsterHealth=100,
       this.currentRound=0,
       this.winner=null
+      this.message=[]
      },
      surrender(){
       this.winner="monster"
+     },
+     logmessage(who,what,value){
+
+           this.message.unshift({
+            actionby:who,
+            actiontype:what,
+            actionvalue:value
+           })
      }
   }
 }
