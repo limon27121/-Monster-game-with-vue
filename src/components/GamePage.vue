@@ -3,13 +3,16 @@
       <h1>Limon the Monster</h1>
     </header>
     <div id="game">
-      <section id="monster" class="container">
+      <!-- monster section -->
+      <section id="monster" class="container">  
         <h2>Monster Health</h2>
         <div class="healthbar">
-          <!-- change the class style using style class-->
+          <!-- change the class style using style class in a dynamic way-->
           <div class="healthbar__value" :style="monsterstyle"></div>
         </div>
       </section>
+
+       <!-- player section -->
       <section id="player" class="container">
         <h2>Your Health</h2>
         <div class="healthbar">
@@ -26,42 +29,58 @@
         <h2 v-else>Draw</h2>
         <button @click="start">Start New Game</button>
       </section>
-      <section id="controls" v-else>
+
+      <!-- funcolatity of my app -->
+
+       <section id="controls" v-else>
 
         <!-- disabled the button when both of party health are limited -->
 
         <button @click="attackMonster" :disabled="playerHealth<0 || monsterHealth<0">ATTACK</button>
 
           <!-- disabled the button when round are not disibled by 3  -->
-        <button @click="special" :disabled="currentRound%3!=0">SPECIAL ATTACK</button>
+        <button @click="special" :disabled="currentRound%3!=0||currentRound==0">SPECIAL ATTACK</button>
         
-        <button @click="heal" :disabled="playerHealth>=100">HEAL</button>
+        <button @click="heal" :disabled="playerHealth>=100 || heal_count>=3">HEAL</button>
 
         <button @click="surrender">SURRENDER</button>
+        <button @click="pauseGame">Pause</button>
       </section>
-      <section id="log" class="container">
+
+
+    <!-- show the result of battle field -->
+
+       <section id="log" class="container">
         <h2>Battle Log</h2>
         <ul>
-          <li v-for="k in message" :key="k">
-          {{ k.actionby }} - {{ k.actiontype }} - {{ k.actionvalue }}
+          <li v-for="logitem in message" :key="logitem">
+          {{ logitem.actionby }} - {{ logitem.actiontype }} - {{ logitem.actionvalue }}
           </li>
         </ul>
       </section>
-    </div>
+
+
+
+
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
+  name: 'GamePage',
   data(){
     return{
       playerHealth: 100,
       monsterHealth: 100,
       currentRound: 0,
       winner:null,
+      heal_count:0,
       message:[]
     }
   },
+
+  // check frequenly status about player health and monster health
+
   watch:{
      playerHealth(value){
        if(value<=0&&this.monsterHealth<=0){
@@ -82,12 +101,15 @@ export default {
 
   },
   computed:{
+    //change the player style using function value 
    playerstyle(){
     if(this.playerHealth<=0){
       return{width:"0%"}
     }
     return{width:this.playerHealth+'%'}
    },
+
+    //change the monster style using function value 
    monsterstyle(){
     if(this.monsterHealth<=0){
       return{width:"0%"}
@@ -95,25 +117,52 @@ export default {
     return{width:this.monsterHealth+'%'}
    }
   },
+  
+   mounted() {
+    // Load data from local storage when the component is mounted
+    this.loadFromLocalStorage();
+
+   
+  },
+  
   methods: {
 
+     saveToLocalStorage(){
+         localStorage.setItem('log', JSON.stringify(this.message));
+      },
+     loadFromLocalStorage(){
+      const msg=localStorage.getItem("log")
+      if(msg){
+        this.message=JSON.parse(msg)
+      }
+     },
+     
     getRandomValue(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
     },
 
+
+    //attack to monster
     attackMonster() {
       this.currentRound++
       const attackValue = this.getRandomValue(5,12)
      
       this.monsterHealth -= attackValue;
       this.logmessage('player','attack',attackValue)
+
+      //when you are attack the monster your life also decraesed to call the attackplayer()
       this.attackPlayer();
     },
+
+    //attack to player
      attackPlayer() {
-     const attackValue = this.getRandomValue(8,5)
+     const attackValue = this.getRandomValue(5,13)
        this.playerHealth -= attackValue;
        this.logmessage('monster','attack',attackValue)
      },
+
+
+     //special attack to monster after 3 round
      special(){
       this.currentRound++
       const attackValue=this.getRandomValue(10,25)
@@ -121,28 +170,41 @@ export default {
       this.logmessage('player','attack',attackValue)
       this.attackPlayer();
      },
+
+     //refuel player life 
      heal(){
       this.currentRound++
-      const healvalue=this.getRandomValue(8,20)
+      
+      const healvalue=this.getRandomValue(2,6)
       if(this.playerHealth+healvalue>=100){
         this.playerHealth=100
       }
       else{
         this.playerHealth+=healvalue
       }
-      this.logmessage('player','attack',healValue)
-      this.attackPlayer()
+      this.heal_count++
+      this.logmessage('player','attack', healvalue)
+      // this.attackPlayer()
      },
+     //restart the game 
      start(){
       this.playerHealth=100,
       this.monsterHealth=100,
       this.currentRound=0,
       this.winner=null
+      this.heal_count=0
       this.message=[]
      },
+
      surrender(){
       this.winner="monster"
      },
+     pauseGame() {
+      // Triggered when the pause button is clicked
+      // You can add additional logic here before saving if needed
+      this.saveToLocalStorage();
+      alert('Game paused. Battle log saved!');
+    },
      logmessage(who,what,value){
 
            this.message.unshift({
@@ -154,6 +216,8 @@ export default {
   }
 }
 </script>
+
+
 
 
 <style scoped>

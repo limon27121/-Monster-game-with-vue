@@ -1,15 +1,15 @@
 <template>
  
-  <HelloWorld/>
+  <GamePage/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import GamePage from "./components/GamePage.vue"
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+   GamePage
   }
 }
 </script>
