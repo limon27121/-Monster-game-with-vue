@@ -7,17 +7,19 @@
       <section id="monster" class="container">  
         <h2>Monster Health</h2>
         <div class="healthbar">
+
           <!-- change the class style using style class in a dynamic way-->
-          <div class="healthbar__value" :style="monsterstyle"></div>
+          <div class="healthbar__value__monster" :style="monsterstyle"></div>
         </div>
       </section>
+
 
        <!-- player section -->
       <section id="player" class="container">
         <h2>Your Health</h2>
         <div class="healthbar">
           <!-- change the class style using style class -->
-          <div class="healthbar__value" :style="playerstyle"></div>
+          <div class="healthbar__value__player" :style="playerstyle"></div>
         </div>
       </section>
 
@@ -25,7 +27,7 @@
       <section class="container" v-if="winner">
         <h2>Game Over</h2>
         <h2 v-if="winner=='player'">You Win</h2>
-        <h2 v-else-if="winner='monster'">You Lost</h2>
+        <h2 v-else-if="winner=='monster'">You Lost</h2>
         <h2 v-else>Draw</h2>
         <button @click="start">Start New Game</button>
       </section>
@@ -45,16 +47,17 @@
 
         <button @click="surrender">SURRENDER</button>
         <button @click="pauseGame">Pause</button>
+        <button @click="start" :disabled="is_active">Start new game</button>
       </section>
 
 
     <!-- show the result of battle field -->
 
        <section id="log" class="container">
-        <h2>Battle Log</h2>
+        <h2 class="b1header">Battle Log</h2>
         <ul>
-          <li v-for="logitem in message" :key="logitem">
-          {{ logitem.actionby }} - {{ logitem.actiontype }} - {{ logitem.actionvalue }}
+          <li v-for="logitem in message" :key="logitem" :style="ChangeColor(logitem)">
+          {{ logitem.actionby }} -> {{ logitem.actiontype }} -> {{ logitem.actionvalue }}
           </li>
         </ul>
       </section>
@@ -75,13 +78,16 @@ export default {
       currentRound: 0,
       winner:null,
       heal_count:0,
-      message:[]
+      message:[],
+      is_active:true
     }
   },
 
   // check frequenly status about player health and monster health
 
   watch:{
+
+    // check the playervalue
      playerHealth(value){
        if(value<=0&&this.monsterHealth<=0){
        this.winner=draw
@@ -101,7 +107,7 @@ export default {
 
   },
   computed:{
-    //change the player style using function value 
+    //change the player css style using function value 
    playerstyle(){
     if(this.playerHealth<=0){
       return{width:"0%"}
@@ -127,9 +133,13 @@ export default {
   
   methods: {
 
+    //save data in local storage
+
      saveToLocalStorage(){
          localStorage.setItem('log', JSON.stringify(this.message));
       },
+
+      // load the save data from the local storage
      loadFromLocalStorage(){
       const msg=localStorage.getItem("log")
       if(msg){
@@ -144,6 +154,7 @@ export default {
 
     //attack to monster
     attackMonster() {
+      //track the round number of game
       this.currentRound++
       const attackValue = this.getRandomValue(5,12)
      
@@ -173,7 +184,7 @@ export default {
 
      //refuel player life 
      heal(){
-      this.currentRound++
+      // this.currentRound++
       
       const healvalue=this.getRandomValue(2,6)
       if(this.playerHealth+healvalue>=100){
@@ -183,7 +194,7 @@ export default {
         this.playerHealth+=healvalue
       }
       this.heal_count++
-      this.logmessage('player','attack', healvalue)
+      this.logmessage('player','Heal', healvalue)
       // this.attackPlayer()
      },
      //restart the game 
@@ -194,17 +205,21 @@ export default {
       this.winner=null
       this.heal_count=0
       this.message=[]
+      this.is_active=true
      },
 
      surrender(){
       this.winner="monster"
      },
+
      pauseGame() {
       // Triggered when the pause button is clicked
       // You can add additional logic here before saving if needed
       this.saveToLocalStorage();
       alert('Game paused. Battle log saved!');
+      this.is_active = false
     },
+
      logmessage(who,what,value){
 
            this.message.unshift({
@@ -212,7 +227,18 @@ export default {
             actiontype:what,
             actionvalue:value
            })
+     },
+     ChangeColor(logitem){
+    
+      if(logitem.actionby=="player"){
+       return{color:"red"}
+      }
+      else{
+      return{color:"green"}
+      }
+      return color
      }
+
   }
 }
 </script>
@@ -244,8 +270,13 @@ section {
   background: #fde5e5;
 }
 
-.healthbar__value {
-  background-color: #00a876;
+.healthbar__value__monster {
+  background-color: blueviolet;
+  width: 100%;
+  height: 100%;
+}
+.healthbar__value__player {
+  background-color:greenyellow;
   width: 100%;
   height: 100%;
 }
@@ -256,6 +287,7 @@ section {
   margin: 1rem auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
   border-radius: 12px;
+  color:red
 }
 
 #monster h2,
@@ -328,5 +360,8 @@ button:disabled {
 
 .log--heal {
   color: green;
+}
+.b1header{
+  color: blue;
 }
 </style>
